@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="maniexo">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.00599776174308269 0.00982304377481134 -0.00307718108199094"
+        rpy="0 0 0" />
+      <mass
+        value="0.00786789396969289" />
+      <inertia
+        ixx="1.18148777556037E-06"
+        ixy="-5.17570735213473E-07"
+        ixz="-1.84149644255169E-08"
+        iyy="1.07373972694154E-06"
+        iyz="-4.87070783916354E-08"
+        izz="2.19343511012124E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="link_11">
+    <inertial>
+      <origin
+        xyz="-0.0194378840790386 0.0202894450824176 0.00173395527056601"
+        rpy="0 0 0" />
+      <mass
+        value="0.00223467202473525" />
+      <inertia
+        ixx="2.29258188789575E-07"
+        ixy="2.14099610612929E-07"
+        ixz="-4.92537126120248E-11"
+        iyy="2.84513103815603E-07"
+        iyz="-1.50010632702504E-10"
+        izz="4.77511912399258E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_11.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_11.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j11"
+    type="revolute">
+    <origin
+      xyz="-0.01708 -0.021606 -0.005"
+      rpy="0 1.5708 2.3562" />
+    <parent
+      link="base_link" />
+    <child
+      link="link_11" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_12">
+    <inertial>
+      <origin
+        xyz="0.0239347115479488 0.0153927042255716 0.00503368058218513"
+        rpy="0 0 0" />
+      <mass
+        value="0.00172486845359109" />
+      <inertia
+        ixx="2.96568934534256E-07"
+        ixy="-1.95167710457615E-07"
+        ixz="-5.36509543954245E-08"
+        iyy="3.59909020664556E-07"
+        iyz="-3.09062123925734E-08"
+        izz="6.0692450558821E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_12.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_12.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j12"
+    type="revolute">
+    <origin
+      xyz="-0.034337 0.0312 0.0017"
+      rpy="-1.5708 -1.5708 3.1416" />
+    <parent
+      link="link_11" />
+    <child
+      link="link_12" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_13">
+    <inertial>
+      <origin
+        xyz="-0.00275598091844045 0.0171013082982554 0.0114897991653802"
+        rpy="0 0 0" />
+      <mass
+        value="0.0021577823256147" />
+      <inertia
+        ixx="4.36819893192054E-07"
+        ixy="7.96040455945356E-08"
+        ixz="-1.70706905974473E-09"
+        iyy="2.87788243442553E-07"
+        iyz="1.13766383807353E-09"
+        izz="3.00034675003969E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_13.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_13.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j13"
+    type="revolute">
+    <origin
+      xyz="0.04 0.0332 0.0087"
+      rpy="1.5708 1.5708 0" />
+    <parent
+      link="link_12" />
+    <child
+      link="link_13" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_14">
+    <inertial>
+      <origin
+        xyz="-0.00562177803999205 0.0182335719063677 0.0129931481612673"
+        rpy="0 0 0" />
+      <mass
+        value="0.00418925270581729" />
+      <inertia
+        ixx="6.39077403968338E-07"
+        ixy="1.2065808877892E-07"
+        ixz="1.62186935001399E-10"
+        iyy="4.22708984113048E-07"
+        iyz="-6.88615297065388E-10"
+        izz="5.31347222537241E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_14.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_14.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j14"
+    type="revolute">
+    <origin
+      xyz="-0.0095575 0.0312 0"
+      rpy="0 0 0" />
+    <parent
+      link="link_13" />
+    <child
+      link="link_14" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.57"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_21">
+    <inertial>
+      <origin
+        xyz="-0.00292555609180222 0.00333049704025469 0.00300313692306352"
+        rpy="0 0 0" />
+      <mass
+        value="0.00111180928334376" />
+      <inertia
+        ixx="3.30194238642245E-08"
+        ixy="-8.35318642205584E-10"
+        ixz="5.55623141654556E-10"
+        iyy="9.10482440625475E-08"
+        iyz="-4.083996436177E-09"
+        izz="1.0273967619007E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_21.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_21.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j21"
+    type="revolute">
+    <origin
+      xyz="-0.014 0.032 -0.0042"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="link_21" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_22">
+    <inertial>
+      <origin
+        xyz="-0.00167183483203976 0.0289801523532644 0.00988583419271647"
+        rpy="0 0 0" />
+      <mass
+        value="0.0023443539039227" />
+      <inertia
+        ixx="7.95922863072503E-07"
+        ixy="1.16161787663554E-07"
+        ixz="-1.14266665074889E-09"
+        iyy="2.18170957112326E-07"
+        iyz="6.25951158024536E-10"
+        izz="7.09675987536077E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_22.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_22.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j22"
+    type="revolute">
+    <origin
+      xyz="-0.0112 0.008 0.0042"
+      rpy="0 1.5708 0" />
+    <parent
+      link="link_21" />
+    <child
+      link="link_22" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_23">
+    <inertial>
+      <origin
+        xyz="0.000268249471579724 0.0233707625573986 0.0109668757148701"
+        rpy="0 0 0" />
+      <mass
+        value="0.00274469075954858" />
+      <inertia
+        ixx="2.91717789421685E-07"
+        ixy="1.76410784171905E-08"
+        ixz="5.82645518496106E-09"
+        iyy="1.93940345649574E-07"
+        iyz="8.3699971964392E-09"
+        izz="2.25572137250595E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_23.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_23.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j23"
+    type="revolute">
+    <origin
+      xyz="-0.0080705 0.0492 0.0002"
+      rpy="0 0 0" />
+    <parent
+      link="link_22" />
+    <child
+      link="link_23" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_31">
+    <inertial>
+      <origin
+        xyz="-0.00292555609180223 0.00333049704025472 0.00300313692306353"
+        rpy="0 0 0" />
+      <mass
+        value="0.00111180928334376" />
+      <inertia
+        ixx="3.30194238642245E-08"
+        ixy="-8.35318642205653E-10"
+        ixz="5.55623141654568E-10"
+        iyy="9.10482440625474E-08"
+        iyz="-4.08399643617702E-09"
+        izz="1.02739676190069E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_31.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_31.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j31"
+    type="revolute">
+    <origin
+      xyz="0.014 0.032 -0.0042"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="link_31" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_32">
+    <inertial>
+      <origin
+        xyz="-0.00141507332656362 0.0324623732696431 0.00990227629547053"
+        rpy="0 0 0" />
+      <mass
+        value="0.00243138055410109" />
+      <inertia
+        ixx="1.01380603156866E-06"
+        ixy="1.31826058001882E-07"
+        ixz="-1.69906134718064E-09"
+        iyy="2.17796422212826E-07"
+        iyz="2.55512699184075E-09"
+        izz="9.29922192862984E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_32.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_32.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j32"
+    type="revolute">
+    <origin
+      xyz="-0.0112 0.008 0.0042"
+      rpy="0 1.5708 0" />
+    <parent
+      link="link_31" />
+    <child
+      link="link_32" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_33">
+    <inertial>
+      <origin
+        xyz="0.000268246023296149 0.0263032062176622 0.0109668796631391"
+        rpy="0 0 0" />
+      <mass
+        value="0.00274468950458302" />
+      <inertia
+        ixx="2.91717654278615E-07"
+        ixy="1.76410644964327E-08"
+        ixz="5.82642098607415E-09"
+        iyy="1.93940254876873E-07"
+        iyz="8.3700003599881E-09"
+        izz="2.25572184978187E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_33.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_33.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="j33"
+    type="revolute">
+    <origin
+      xyz="-0.0080581 0.0552 0.0002"
+      rpy="0 0 0" />
+    <parent
+      link="link_32" />
+    <child
+      link="link_33" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link_tag">
+    <inertial>
+      <origin
+        xyz="-0.00347432172032466 -0.000953506890492763 -0.0114650613193691"
+        rpy="0 0 0" />
+      <mass
+        value="0.00355582565339228" />
+      <inertia
+        ixx="5.48518231487005E-07"
+        ixy="-4.12704843061412E-09"
+        ixz="2.13620018325141E-09"
+        iyy="7.31585644009308E-07"
+        iyz="3.05284730176406E-09"
+        izz="7.55988644344329E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_tag.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://manicapture/urdf/meshes/link_tag.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="jtag"
+    type="fixed">
+    <origin
+      xyz="-0.0135 -0.001 -0.0215"
+      rpy="-1.5708 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="link_tag" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>

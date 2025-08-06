@@ -1,0 +1,44 @@
+# AprilTag 3 code parameters
+# Find descriptions in apriltag/include/apriltag.h:struct apriltag_detector
+#                      apriltag/include/apriltag.h:struct apriltag_family
+tag_family:        'tag36h11' # options: tagStandard52h13, tagStandard41h12, tag36h11, tag25h9, tag16h5, tagCustom48h12, tagCircle21h7, tagCircle49h12
+tag_threads:       12          # default: 2
+tag_decimate:      1.0        # default: 1.0
+tag_blur:          0.0        # default: 0.0
+tag_refine_edges:  1          # default: 1
+tag_debug:         0          # default: 0
+max_hamming_dist:  2          # default: 2 (Tunable parameter with 2 being a good choice - values >=3 consume large amounts of memory. Choose the largest value possible.)
+# Other parameters
+publish_tf:        true       # default: false
+transport_hint:    "raw"      # default: raw, see http://wiki.ros.org/image_transport#Known_Transport_Packages for options
+
+
+standalone_tags:
+  [
+#     {id: ID, size: SIZE, name: NAME},
+  ]
+
+tag_bundles:
+  [
+    {
+      name: 'tag_left_hand',
+      layout:
+      [
+        {id: 112, size: 0.0192, x: 0, y: 0, z: 0, qx: 0.0, qy: 0.0, qz: 0.0,  qw: 1.0},
+        {id: 114, size: 0.0192, x: 0.012, y: 0.0, z: -0.012, qx: 0.5, qy: 0.5, qz: 0.5, qw: 0.5},
+        {id: 113, size: 0.0192, x: 0, y: 0.012, z: -0.012, qx: 0.0, qy: 0.7071068, qz: 0.7071068, qw: 0.0},
+        {id: 111, size: 0.0192, x: 0, y: -0.012, z: -0.012, qx: 0.7071068, qy: 0.0, qz: 0.0, qw: 0.7071068},
+      ]
+    },
+    # {
+    #   name: 'tag_finger12',
+    #   layout:
+    #   [
+    #     {id: 125, size: 0.0192, x: 0, y: 0, z: 0, qx: 0.0, qy: 0.0, qz: 0.0,  qw: 1.0},
+    #     {id: 124, size: 0.0192, x: 0.012, y: 0.0, z: -0.012, qx: 0.5, qy: 0.5, qz: 0.5, qw: 0.5},
+    #     {id: 123, size: 0.0192, x: 0, y: 0.012, z: -0.012, qx: 0.0, qy: 0.7071068, qz: 0.7071068, qw: 0.0},
+    #     {id: 122, size: 0.0192, x: -0.012, y: 0.0, z: -0.012, qx: 0.5, qy: -0.5, qz: -0.5, qw: 0.5},
+    #     {id: 121, size: 0.0192, x: 0, y: -0.012, z: -0.012, qx: 0.7071068, qy: 0.0, qz: 0.0, qw: 0.7071068},
+    #   ]
+    # }
+  ]
