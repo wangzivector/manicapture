@@ -25,6 +25,6 @@
     <rosparam command="load" file="$(find manicapture)/cfg//tagctl.yaml"/>
   </node>
 
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/cfg/manipose.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/manipose.rviz" />
 
 </launch>

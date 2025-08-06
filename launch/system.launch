@@ -26,5 +26,5 @@
     <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="0.9 0 0 0 0 0 map manitactile_3 500" />
     
 <!-- visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/cfg/visualization.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/visualization.rviz" />
 </launch>
