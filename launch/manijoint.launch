@@ -1,0 +1,22 @@
+<launch>
+    <arg name="machine" default="true"/>
+    <arg name="display" default="true"/>
+
+    <group if="$(arg machine)">
+    <include file="$(find manicapture)/launch/machine.launch" />
+    </group>
+
+<!-- joint node -->
+    <node pkg="manicapture" type="manijoint.py" name="manijoint_node" output="screen"/>
+    
+    <!-- <param name="robot_description" command="cat $(find manicapture)/urdf/urdf/maniexo.urdf"/> -->
+    <param name="robot_description" command="cat $(find maniesk)/urdf/maniesk.urdf"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_hand" args="0 0 0 0 0 0 map base_link 500" />
+
+<!-- visualization -->
+    <group if="$(arg display)">
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/vis_system.rviz" />
+    </group>
+
+</launch>

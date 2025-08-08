@@ -8,9 +8,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   sensor_msgs
-  camera_info_manager
-  cv_bridge
-  image_transport
+  # camera_info_manager
+  # cv_bridge
+  # image_transport
 )
 
 find_package(OpenCV REQUIRED)
@@ -22,7 +22,7 @@ catkin_package()
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
+  # ${OpenCV_INCLUDE_DIRS}
 )
 
 # for dynamic reconfigure
@@ -32,8 +32,8 @@ add_dependencies(machine_server ${PROJECT_NAME}_gencfg)
 # for dynamic reconfigure
 target_link_libraries(machine_server ${catkin_LIBRARIES})
 
-add_executable(pose_imager_node src/pose_imager.cpp)
-target_link_libraries(pose_imager_node
-  ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-)
+# add_executable(pose_imager_node src/pose_imager.cpp)
+# target_link_libraries(pose_imager_node
+#   ${catkin_LIBRARIES}
+#   ${OpenCV_LIBRARIES}
+# )

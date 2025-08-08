@@ -1,30 +1,28 @@
 <launch>
-<!-- parameter definition -->
-    <arg name="port" default="/dev/ttyACM0"/>
-    <arg name="baud" default="115200"/>
+    <arg name="tactile" default="true"/>
+    <arg name="joint" default="true"/>
+    <arg name="pose" default="false"/>
 
 <!-- hardware connection -->
-    <node pkg="rosserial_python" type="serial_node.py" name="machine_serial_node" output="screen">
-        <param name="port" value="$(arg port)"/>
-        <param name="baud" value="$(arg baud)"/>
-    </node>
+    <include file="$(find manicapture)/launch/machine.launch"/>
 
 <!-- tactile node -->
-    <node pkg="manicapture" type="machine_server" name="machine_server" output="screen"/>
-    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" output="screen"/>
-    <node pkg="manicapture" type="manitactile.py" name="manitactile_node" output="screen"/>
+    <include file="$(find manicapture)/launch/manitactile.launch" if="$(arg tactile)">
+        <arg name="machine" value="false" />
+        <arg name="display" value="false" />
+    </include>
 
 <!-- joint node -->
-    <node pkg="manicapture" type="manijoint.py" name="manijoint_node" output="screen"/>
-    <param name="robot_description" command="cat $(find manicapture)/urdf/urdf/maniexo.urdf"/>
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_hand" args="-0.3 0 0 0 0 0 map base_link 500" />
+    <include file="$(find manicapture)/launch/manijoint.launch" if="$(arg joint)">
+        <arg name="machine" value="false" />
+        <arg name="display" value="false" />
+    </include>
 
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_0" args="0 0 0 0 0 0 map manitactile_0 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_1" args="0.3 0 0 0 0 0 map manitactile_1 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_2" args="0.6 0 0 0 0 0 map manitactile_2 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="0.9 0 0 0 0 0 map manitactile_3 500" />
-    
+<!-- pose node -->
+    <include file="$(find manicapture)/launch/manipose.launch" if="$(arg pose)">
+        <arg name="display" value="false" />
+    </include>
+
 <!-- visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/visualization.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/vis_system.rviz" />
 </launch>

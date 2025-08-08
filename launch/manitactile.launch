@@ -1,19 +1,23 @@
 <launch>
-    <arg name="port" default="/dev/ttyACM0"/>
-    <arg name="baud" default="115200"/>
+<!-- parameter definition -->
+    <arg name="machine" default="true"/>
+    <arg name="display" default="true"/>
 
-    <node pkg="rosserial_python" type="serial_node.py" name="manitactile_serial_node" output="screen">
-        <param name="port" value="$(arg port)"/>
-        <param name="baud" value="$(arg baud)"/>
-    </node>
-    <node pkg="manitactile" type="manitactile_params_server" name="manitactile_params_server" output="screen"/>
-    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" output="screen"/>
-    <node pkg="manitactile" type="manitactile.py" name="manitactile_node" output="screen"/>
+    <group if="$(arg machine)">
+    <include file="$(find manicapture)/launch/machine.launch" />
+    </group>
 
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_0" args="0 0 0 0 0 0 map manitactile_0 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_1" args="0.3 0 0 0 0 0 map manitactile_1 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_2" args="0.6 0 0 0 0 0 map manitactile_2 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="0.9 0 0 0 0 0 map manitactile_3 500" />
-    
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/cfg/visualization.rviz" />
+<!-- tactile node -->
+    <node pkg="manicapture" type="manitactile.py" name="manitactile_node" output="screen"/>
+
+    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_0" args="0.2 0 0 0 0 0 map manitactile_0 500" />
+    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_1" args="0.5 0 0 0 0 0 map manitactile_1 500" />
+    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_2" args="0.8 0 0 0 0 0 map manitactile_2 500" />
+    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="0.11 0 0 0 0 0 map manitactile_3 500" />
+
+<!-- visualization -->
+    <group if="$(arg display)">
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/vis_system.rviz" />
+    </group>
+
 </launch>

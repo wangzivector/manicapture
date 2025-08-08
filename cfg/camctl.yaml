@@ -11,7 +11,8 @@ camera_info_url: "package://manicapture/cfg/caminfo.yaml"
 # camera intrinsic controls
 autofocus: false
 autoexposure: false
-exposure: 200
+exposure: 50
+gain: 40
 white_balance_temperature_auto: true
 power_line_frequency: 1
 

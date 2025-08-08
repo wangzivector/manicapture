@@ -15,8 +15,8 @@ np.set_printoptions(precision=4, suppress=True)
 
 
 class PhotoTactile:
-    def __init__(self, method='Gaussian', enable_vis=True):
-        self.enable_vis = enable_vis
+    def __init__(self, method='Gaussian', visualize=True):
+        self.visualize = visualize
         self.last_time = [time.time() for i in range(4)]
         self.pt_cst = [[], [], [], []]
         self.pt_opgs = [None, None, None, None]
@@ -24,20 +24,23 @@ class PhotoTactile:
         self.pt_sense = [None, None, None, None]
         self.photoinfo = [None, None, None, None]
         self.d_pointinfo = [None, None, None, None]
+        self.roscvbridge = CvBridge()
+
         rospy.Subscriber('hardware_photos', UInt16MultiArray, self.photo_callback)
-        self.pub_pointarray = rospy.Publisher('tt_pointarray', Float32MultiArray, queue_size=3)
-        self.pub_d_pointarray = rospy.Publisher('tt_d_pointarray', Float32MultiArray, queue_size=3)
+
+        self.pub_itp_surface = rospy.Publisher('tt_itp_surface', Float32MultiArray, queue_size=3)
+        self.pub_displacement = rospy.Publisher('tt_displacement', Float32MultiArray, queue_size=3)
+
         self.pub_forcearray = rospy.Publisher('vis_forcearray', MarkerArray, queue_size=10)
         self.pub_deformation = rospy.Publisher('vis_deformation', MarkerArray, queue_size=10)
-        self.pub_photoimage = rospy.Publisher('vis_photoimage', Image, queue_size=10)
         self.pub_surfmesh = rospy.Publisher('vis_surfmesh', Marker, queue_size=10)
-        self.roscvbridge = CvBridge()
+        self.pub_photoimage = rospy.Publisher('vis_photoimage', Image, queue_size=10)
         
         self.initial_batchsize = 10
         self.initial_data_var = 2e-4
         self.pattern_threshold = 0.01
-        method_set = {"Gaussian": (self.gaussiangd, self.compute_force_gaussian), 
-                      'Intensity': (self.intensitygd, self.compute_force_intensity)}
+        method_set = {"Gaussian": (self.gaussiangd, self.compute_deform_gaussian), 
+                      'Intensity': (self.intensitygd, self.compute_deform_intensity)}
         self.optifun = method_set[method][0]
         self.forcefun = method_set[method][1]
 
@@ -219,40 +222,38 @@ class PhotoTactile:
         ## preprocessing
         photodigits_c = self.pt_sense[TACTID] / (np.power(2, ADCRES) - 1) # (GRIDLENGTH, GRIDLENGTH, PADSIZE)
         self.initializephoto(TACTID, photodigits_c, GRIDLENGTH, refresh = (SEQUENCE == 0))
-        
-        ## visualization
-        if self.enable_vis: self.photoimage_visualization(TACTID, photodigits_c)
-
-        if not isinstance(self.pt_cst[TACTID], np.ndarray): return
+        if not isinstance(self.pt_cst[TACTID], np.ndarray): return False
 
         ## tactile x-y-h optimization
-        POINTSIZE, PADS = GRIDLENGTH*GRIDLENGTH, [self.PADPHOTOX, self.PADPHOTOY]
         start_opt_time = time.time()
+        POINTSIZE, PADS = GRIDLENGTH*GRIDLENGTH, [self.PADPHOTOX, self.PADPHOTOY]
         iterations, retSSE, optgs = self.optifun(photodigits_c, self.last_opgs[TACTID], POINTSIZE, PADS)
         self.last_opgs[TACTID] = optgs.copy()
-        rospy.loginfo("ID:{} iter:{} sse:{:.03f} var:{} time:{:.03f}ms".format(
-            TACTID, iterations, retSSE.mean(), optgs.shape, (time.time() - start_opt_time)*1000))
+        time_opti = time.time() - start_opt_time
 
         ## decompose active force
         photostat, self.photoinfo[TACTID], self.d_pointinfo[TACTID] = self.forcefun(self.pt_opgs[TACTID], optgs, SPACING, self.GRIDPHOTO)
         
-        ## deformation reconstruction
-        ip_points = self.deformation_reconstruction(TACTID, self.photoinfo[TACTID], self.d_pointinfo[TACTID], discreteness=200)
+        ## (interpolated) deformation advertisement 
+        ip_points = self.deformation_advertisement(TACTID, self.photoinfo[TACTID], self.d_pointinfo[TACTID], discreteness=64)
         
+        ## visualization
+        if self.visualize:
+            if TACTID == rospy.get_param('/machine_server/showrosimage', -1):
+                self.photoimage_visualization(TACTID, photodigits_c)
+            self.deformation_visualization(TACTID, self.photoinfo[TACTID], photostat)
+            self.distforce_visualization(TACTID, self.photoinfo[TACTID], photostat)
+
+        ## logging
         deepest_point = ip_points[np.argmin(ip_points[:, 2])] * 1000
-
-        ## draw photo force array to rviz
-        if self.enable_vis:
-            self.photodeform_visualization(TACTID, self.photoinfo[TACTID], photostat)
-            self.photoforce_visualization(TACTID, self.photoinfo[TACTID], photostat)
-
-        ## logging info
+        rospy.loginfo("ID:{} iter:{} sse:{:.03f} var:{} time:{:.03f}ms".format(
+            TACTID, iterations, retSSE.mean(), optgs.shape, (time_opti)*1000))
         rospy.loginfo("ID:{}/{} {:.01f}Hz/{:.01f}ms DELAY:{}us; RES:{} GRID:{}; PAD:{}; pt:{} dp: {}".format(
             TACTID, TACTSIZE, 1/timeforud, timeforud*1000, SENSEDELAY, ADCRES, 
             self.GRIDPHOTO.shape, self.PADPHOTOX.shape, photodigits_c.shape, deepest_point))
 
     @staticmethod
-    def compute_force_intensity(dftgs, optgs, SPACING, GRID, HEIGHT = 0.0):
+    def compute_deform_intensity(dftgs, optgs, SPACING, GRID, HEIGHT = 0.0):
         cell_interval = SPACING * 0.0001
         force_scale_xy = 10
         force_scale_z = 0.2
@@ -294,7 +295,7 @@ class PhotoTactile:
         return photostat, photoinfo, d_points # lisf of dict {ox, oy, oz,   dx, dy, dz,   fx, fy, fz}
 
     @staticmethod
-    def compute_force_gaussian(dftgs, optgs, SPACING, GRID, HEIGHT = 0.0):
+    def compute_deform_gaussian(dftgs, optgs, SPACING, GRID, HEIGHT = 0.0):
         cell_interval = SPACING * 0.0001
         force_scale_xy = 10
         force_scale_z = 0.2
@@ -355,7 +356,21 @@ class PhotoTactile:
         check_points = np.vstack([check_locations[0].flatten(), check_locations[1].flatten(), zs.flatten()]).T
         return points, check_points
 
-    def photoforce_visualization(self, TACTID, photoinfo, photostat, pscale = 10):
+    def deformation_advertisement(self, TACTID, photoinfo, d_pointinfo, discreteness):
+        ## Interpolation
+        ori_points, ip_points = self.interpolate_positions(photoinfo, discreteness)
+        ip_msg = Float32MultiArray()
+        ip_msg.layout.data_offset = TACTID
+        ip_msg.data = ip_points.flatten().tolist()
+        self.pub_itp_surface.publish(ip_msg)
+
+        dp_msg = Float32MultiArray()
+        dp_msg.layout.data_offset = TACTID
+        dp_msg.data = d_pointinfo.flatten().tolist()
+        self.pub_displacement.publish(dp_msg)
+        return ip_points
+
+    def distforce_visualization(self, TACTID, photoinfo, photostat, pscale = 10):
         marker_array = MarkerArray()
         for i, pf in enumerate(photoinfo):
             marker = Marker()
@@ -398,22 +413,7 @@ class PhotoTactile:
             marker_array.markers.append(marker)
         self.pub_forcearray.publish(marker_array)
 
-
-    def deformation_reconstruction(self, TACTID, photoinfo, d_pointinfo, discreteness):
-        ## Interpolation
-        ori_points, ip_points = self.interpolate_positions(photoinfo, discreteness)
-        ip_msg = Float32MultiArray()
-        ip_msg.layout.data_offset = TACTID
-        ip_msg.data = ip_points.flatten().tolist()
-        self.pub_pointarray.publish(ip_msg)
-
-        dp_msg = Float32MultiArray()
-        dp_msg.layout.data_offset = TACTID
-        dp_msg.data = d_pointinfo.flatten().tolist()
-        self.pub_d_pointarray.publish(dp_msg)
-        return ip_points
-
-    def photodeform_visualization(self, TACTID, photoinfo, photostat, pscale = 10, dz_scale = 5):
+    def deformation_visualization(self, TACTID, photoinfo, photostat, pscale = 10, dz_scale = 5):
         shift = {'sx': 0, 'sy': -0.03, 'sz': 0}
         marker_array = MarkerArray()
         for i, pf in enumerate(photoinfo):
@@ -479,9 +479,6 @@ class PhotoTactile:
         return points
 
     def photoimage_visualization(self, TACTID, photodigits, is_pubmsg = True):
-        if is_pubmsg:
-            if TACTID != rospy.get_param('/machine_server/showrosimage', -1):
-                return 
         GRIDSIZE = len(photodigits)
         resize_unit = 30
         offx = self.PADPHOTOX - (self.PADPHOTOX).min()
@@ -543,10 +540,9 @@ class PhotoTactile:
         photoimg = np.concatenate([digit_orig_rs, photocon_clip_rs, photocon_nml], axis=1)
         # photoimg = photocon
         if is_pubmsg:
-            if TACTID == rospy.get_param('/machine_server/showrosimage', -1):
-                photoimg = cv2.normalize(photoimg*255, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-                ros_image = self.roscvbridge.cv2_to_imgmsg(photoimg, encoding="passthrough")
-                self.pub_photoimage.publish(ros_image)
+            photoimg = cv2.normalize(photoimg*255, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+            ros_image = self.roscvbridge.cv2_to_imgmsg(photoimg, encoding="passthrough")
+            self.pub_photoimage.publish(ros_image)
         else:
             cv2.imshow('photoshow-{}'.format(TACTID), photoimg)
             cv2.waitKey(1)
