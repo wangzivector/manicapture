@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /TF1
         - /Mesh1/Namespaces1
       Splitter Ratio: 0.4261682331562042
     Tree Height: 737
@@ -25,7 +26,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Image
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -56,8 +57,7 @@ Visualization Manager:
       Marker Topic: /vis_forcearray
       Name: MarkerArray
       Namespaces:
-        pt_0: true
-        pt_1: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -65,21 +65,8 @@ Visualization Manager:
       Marker Topic: /vis_deformation
       Name: MarkerArray
       Namespaces:
-        vis_0_point: true
-        vis_1_point: true
+        p_1_point: true
       Queue Size: 100
-      Value: true
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /vis_photoimage
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
       Value: true
     - Class: rviz/TF
       Enabled: true
@@ -89,6 +76,8 @@ Visualization Manager:
       Frames:
         All Enabled: true
         base_link:
+          Value: true
+        camera:
           Value: true
         link_11:
           Value: true
@@ -110,17 +99,15 @@ Visualization Manager:
           Value: true
         link_33:
           Value: true
-        link_tag:
-          Value: true
-        manitactile_0:
-          Value: true
-        manitactile_1:
-          Value: true
-        manitactile_2:
-          Value: true
-        manitactile_3:
-          Value: true
         map:
+          Value: true
+        p1:
+          Value: true
+        p2:
+          Value: true
+        p3:
+          Value: true
+        tag_left_hand:
           Value: true
       Marker Alpha: 1
       Marker Scale: 0.20000000298023224
@@ -130,30 +117,25 @@ Visualization Manager:
       Show Names: false
       Tree:
         map:
-          base_link:
-            link_11:
-              link_12:
-                link_13:
-                  link_14:
-                    {}
-            link_21:
-              link_22:
-                link_23:
-                  {}
-            link_31:
-              link_32:
-                link_33:
-                  {}
-            link_tag:
-              {}
-          manitactile_0:
-            {}
-          manitactile_1:
-            {}
-          manitactile_2:
-            {}
-          manitactile_3:
-            {}
+          camera:
+            tag_left_hand:
+              base_link:
+                link_11:
+                  link_12:
+                    link_13:
+                      link_14:
+                        p1:
+                          {}
+                link_21:
+                  link_22:
+                    link_23:
+                      p2:
+                        {}
+                link_31:
+                  link_32:
+                    link_33:
+                      p3:
+                        {}
       Update Interval: 0
       Value: true
     - Class: rviz/Marker
@@ -161,8 +143,7 @@ Visualization Manager:
       Marker Topic: /vis_surfmesh
       Name: Mesh
       Namespaces:
-        vis_0_surface: true
-        vis_1_surface: true
+        p_1_surface: true
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -230,7 +211,17 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        link_tag:
+        p1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        p2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        p3:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -241,6 +232,18 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /tag_detections_image
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -269,7 +272,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.1132960319519043
+      Distance: 0.22767993807792664
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -277,17 +280,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.2411452680826187
-        Y: 0.019646959379315376
-        Z: -0.07614227384328842
+        X: -0.07495293766260147
+        Y: -0.04990139603614807
+        Z: 0.20169082283973694
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6304001212120056
+      Pitch: 0.7097970843315125
       Target Frame: <Fixed Frame>
-      Yaw: 5.555405139923096
+      Yaw: 2.7703940868377686
     Saved: ~
 Window Geometry:
   Displays:

@@ -11,11 +11,15 @@
     
     <!-- <param name="robot_description" command="cat $(find manicapture)/urdf/urdf/maniexo.urdf"/> -->
     <param name="robot_description" command="cat $(find maniesk)/urdf/maniesk.urdf"/>
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_hand" args="0 0 0 0 0 0 map base_link 500" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <param name="ignore_timestamp" type="bool" value="true" />
+        <param name="publish_frequency" type="double" value="100.0" />
+        <param name="use_tf_static" type="bool" value="false" />
+    </node>
 
 <!-- visualization -->
     <group if="$(arg display)">
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_hand" args="0 0 0 0 0 0 map base_link 100" />
         <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/vis_system.rviz" />
     </group>
 

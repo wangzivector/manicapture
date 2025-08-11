@@ -2,18 +2,24 @@
 <!-- parameter definition -->
     <arg name="machine" default="true"/>
     <arg name="display" default="true"/>
+    <arg name="tactile_mode" default="static"/>
 
     <group if="$(arg machine)">
     <include file="$(find manicapture)/launch/machine.launch" />
     </group>
 
 <!-- tactile node -->
-    <node pkg="manicapture" type="manitactile.py" name="manitactile_node" output="screen"/>
+    <node pkg="manicapture" type="manitactile.py" name="manitactile_node" output="screen">
+        <param name="photo_optimization" type="str" value="gaussian" />
+        <param name="tactile_display" type="str" value="$(arg tactile_mode)" />
+    </node>
 
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_0" args="0.2 0 0 0 0 0 map manitactile_0 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_1" args="0.5 0 0 0 0 0 map manitactile_1 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_2" args="0.8 0 0 0 0 0 map manitactile_2 500" />
-    <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="0.11 0 0 0 0 0 map manitactile_3 500" />
+    <group if="$(eval tactile_mode == 'static')">
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_0" args="0.2 0 0 0 0 0 map t1 500" />
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_1" args="0.5 0 0 0 0 0 map t2 500" />
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_2" args="0.8 0 0 0 0 0 map t3 500" />
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="0.11 0 0 0 0 0 map t4 500" />
+    </group>
 
 <!-- visualization -->
     <group if="$(arg display)">
