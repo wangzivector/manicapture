@@ -12,6 +12,8 @@
 <!-- tactile node -->
     <node pkg="manicapture" type="manitactile.py" name="manitactile_node" output="screen">
         <param name="photo_optimization" type="str" value="gaussian" />
+        <param name="force_model_path" type="str" value="$(find manicapture)/misc/gelt_model.pkl" />
+        <param name="scale_model_path" type="str" value="$(find manicapture)/misc/data_transform.dtf" />
     </node>
     <node pkg="manicapture" type="tactilevis.py" name="tactile_visualization_node" output="screen">
         <param name="tactile_display" type="str" value="$(arg tactile_mode)" />
@@ -20,10 +22,10 @@
     </node>
 
     <group if="$(eval tactile_mode == 'static')">
-        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_0" args="0.2 0 0 0 0 0 map t1 500" />
-        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_1" args="0.5 0 0 0 0 0 map t2 500" />
-        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_2" args="0.8 0 0 0 0 0 map t3 500" />
-        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="0.11 0 0 0 0 0 map t4 500" />
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_0" args="0.2 0 0 0 0 0 map p1 500" />
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_1" args="0.5 0 0 0 0 0 map p2 500" />
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_2" args="0.8 0 0 0 0 0 map p3 500" />
+        <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_3" args="1.1 0 0 0 0 0 map p4 500" />
     </group>
 
 <!-- visualization -->

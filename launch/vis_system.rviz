@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Marker1/Namespaces1
       Splitter Ratio: 0.4261682331562042
     Tree Height: 1001
   - Class: rviz/Selection
@@ -57,32 +58,67 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        base_link:
+          Value: true
+        camera:
+          Value: true
+        link_11:
+          Value: true
+        link_12:
+          Value: true
+        link_13:
+          Value: true
+        link_14:
+          Value: true
+        link_21:
+          Value: true
+        link_22:
+          Value: true
+        link_23:
+          Value: true
+        link_31:
+          Value: true
+        link_32:
+          Value: true
+        link_33:
+          Value: true
         map:
           Value: true
-        t1:
+        p1:
           Value: true
-        t2:
+        p2:
           Value: true
-        t3:
+        p3:
           Value: true
-        t4:
+        tag_left_hand:
           Value: true
       Marker Alpha: 1
       Marker Scale: 0.20000000298023224
       Name: TF
       Show Arrows: true
-      Show Axes: false
+      Show Axes: true
       Show Names: false
       Tree:
         map:
-          t1:
-            {}
-          t2:
-            {}
-          t3:
-            {}
-          t4:
-            {}
+          camera:
+            tag_left_hand:
+              base_link:
+                link_11:
+                  link_12:
+                    link_13:
+                      link_14:
+                        p1:
+                          {}
+                link_21:
+                  link_22:
+                    link_23:
+                      p2:
+                        {}
+                link_31:
+                  link_32:
+                    link_33:
+                      p3:
+                        {}
       Update Interval: 0
       Value: true
     - Class: rviz/MarkerArray
@@ -90,7 +126,7 @@ Visualization Manager:
       Marker Topic: /vis_force3d
       Name: MarkerArray
       Namespaces:
-        pt_1: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -98,7 +134,7 @@ Visualization Manager:
       Marker Topic: /vis_anchor
       Name: MarkerArray
       Namespaces:
-        t_1_point: true
+        p_1_point: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -106,25 +142,9 @@ Visualization Manager:
       Marker Topic: /vis_surfmesh
       Name: Mesh
       Namespaces:
-        t_1_surface: true
+        p_1_surface: true
       Queue Size: 100
       Value: true
-    - Alpha: 1
-      Class: rviz/RobotModel
-      Collision Enabled: false
-      Enabled: true
-      Links:
-        All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
-        Expand Tree: false
-        Link Tree Style: Links in Alphabetic Order
-      Name: RobotModel
-      Robot Description: robot_description
-      TF Prefix: ""
-      Update Interval: 0
-      Value: true
-      Visual Enabled: true
     - Class: rviz/Image
       Enabled: true
       Image Topic: /vis_photoimage
@@ -136,6 +156,115 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
+      Value: true
+    - Alpha: 0.800000011920929
+      Arrow Width: 0.20000000298023224
+      Class: rviz/WrenchStamped
+      Enabled: true
+      Force Arrow Scale: 0.20000000298023224
+      Force Color: 32; 74; 135
+      Hide Small Values: false
+      History Length: 3
+      Name: WrenchStamped
+      Queue Size: 3
+      Topic: /tt_contact
+      Torque Arrow Scale: 0.009999999776482582
+      Torque Color: 0; 0; 0
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_11:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_12:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_13:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_14:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_21:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_22:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_23:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_31:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_32:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_33:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        p1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        p2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        p3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel
+      Robot Description: robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /vis_contact
+      Name: Marker
+      Namespaces:
+        pt_1: true
+      Queue Size: 4
       Value: true
   Enabled: true
   Global Options:
@@ -165,7 +294,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.3719475269317627
+      Distance: 0.3715430796146393
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -173,17 +302,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.6394162178039551
-        Y: -0.07118963450193405
-        Z: 0.08544350415468216
+        X: 0.07104197144508362
+        Y: -0.05896949768066406
+        Z: 0.2956109046936035
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7597972750663757
+      Pitch: 1.2447963953018188
       Target Frame: <Fixed Frame>
-      Yaw: 5.360393524169922
+      Yaw: 6.025390148162842
     Saved: ~
 Window Geometry:
   Displays:

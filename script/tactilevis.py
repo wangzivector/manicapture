@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import rospy
-import time
 from std_msgs.msg import Float32MultiArray
 import numpy as np
 from visualization_msgs.msg import Marker, MarkerArray
@@ -10,6 +9,7 @@ from cv_bridge import CvBridge
 import cv2
 from scipy.spatial import Delaunay
 from scipy.interpolate import griddata
+from geometry_msgs.msg import WrenchStamped
 
 
 class TactileDisplay:
@@ -17,17 +17,19 @@ class TactileDisplay:
         self.roscvbridge = CvBridge()
         rospy.Subscriber('tt_distactile', Float32MultiArray, self.tactile_callback)
         rospy.Subscriber('tt_photodigit', Float32MultiArray, self.photoimage_visualization)
+        rospy.Subscriber('tt_contact', WrenchStamped, self.contact_callback)
+        self.publish_period = rospy.Duration(1.0/rospy.get_param("/tactile_visualization_node/vis_pub_hz", default=30))
+        rospy.Timer(self.publish_period, self.refresh_vis)
 
         self.pub_itp_surface = rospy.Publisher('tt_interpolate_points', Float32MultiArray, queue_size=3)
         self.pub_forcearray = rospy.Publisher('vis_force3d', MarkerArray, queue_size=10)
         self.pub_deformation = rospy.Publisher('vis_anchor', MarkerArray, queue_size=10)
         self.pub_surfmesh = rospy.Publisher('vis_surfmesh', Marker, queue_size=10)
+        self.pub_contact = rospy.Publisher('vis_contact', Marker, queue_size=10)
         self.pub_photoimage = rospy.Publisher('vis_photoimage', Image, queue_size=10)
         self.visulize_mode = ''
         self.vis_backup_surfmesh = None
         self.vis_backup_points = None
-        self.publish_period = rospy.Duration(1.0/rospy.get_param("/tactile_visualization_node/vis_pub_hz", default=30))
-        rospy.Timer(self.publish_period, self.refresh_vis)
 
     def tactile_callback(self, data):
         TACTID = data.layout.data_offset
@@ -42,7 +44,7 @@ class TactileDisplay:
             self.distforce_visualization(TACTID, distactile)
         elif self.visulize_mode == 'mobile':
             shift = [-0.012 + 0.0015, -0.024 + 0.0015, 0]
-            self.deformation_visualization(TACTID, distactile, shift, frame='p')
+            self.deformation_visualization(TACTID, distactile, shift)
         else: raise ValueError("visulize_mode for tactile is wrongly set: {}".format(self.visulize_mode))
 
         if self.tactile_itpoints == 'true':
@@ -87,54 +89,64 @@ class TactileDisplay:
         ip_msg.data = ip_points.flatten().tolist()
         self.pub_itp_surface.publish(ip_msg)
 
-    def distforce_visualization(self, TACTID, distactile, pscale = 10, frame='t'):
+    def distforce_visualization(self, TACTID, distactile, pscale = 10):
         f_max = np.linalg.norm(distactile[:, -3:], axis=-1).max()
         f_color = f_max + 0.005
-        
         marker_array = MarkerArray()
-        for i, pf in enumerate(distactile):
-            marker = Marker()
-            # marker.header.frame_id = 'map'
-            marker.header.frame_id = frame + "{}".format(TACTID+1)
-            marker.header.stamp = rospy.Time.now()
-            marker.ns = "pt_{}".format(TACTID+1)
-            marker.id = i + TACTID * 64
-            marker.type = Marker.ARROW
-            marker.action = Marker.ADD
-            marker.lifetime = rospy.Duration(.20)
-
-            # leave for remove warning in rviz
-            marker.pose.position.x = 0
-            marker.pose.position.y = 0
-            marker.pose.position.z = 0
-            marker.pose.orientation.x = 0.0
-            marker.pose.orientation.y = 0.0
-            marker.pose.orientation.z = 0.0
-            marker.pose.orientation.w = 1.0
-
-            start = Point()
-            start.x = pf[0] * pscale
-            start.y = pf[1] * pscale
-            start.z = pf[2] * pscale
-            marker.points.append(start)
-            end = Point()
-            end.x = (pf[0] + pf[6]) * pscale
-            end.y = (pf[1] + pf[7]) * pscale
-            end.z = (pf[2] + (pf[8] if pf[8] > 0 else 0.001)) * pscale
-            marker.points.append(end)
-            marker.scale.x = 0.001 * pscale # Shaft diameter
-            marker.scale.y = 0.002 * pscale # Head diameter
-            marker.scale.z = 0.002 * pscale # Head length
-            f_current = np.linalg.norm(pf[6:])
-            marker.color.a = 0.3 + 0.7 * (f_current / f_color)
-            marker.color.r = 1.0 * (f_current / f_color)
-            marker.color.g = 0.5 - 0.5 * (f_current / f_color)
-            marker.color.b = 0.0
-
-            marker_array.markers.append(marker)
+        for id, pf in enumerate(distactile):
+            marker_array.markers.append(self.wrap_contact_marker(TACTID+1, id, pf, pscale, f_color))
         self.pub_forcearray.publish(marker_array)
+    
+    def contact_callback(self, wren_vis):
+        if self.visulize_mode == 'static': return 
+        TACTID = int(wren_vis.header.frame_id[-1])
+        point_data = [0, 0, 0, 0, 0, 0,
+            wren_vis.wrench.force.x, wren_vis.wrench.force.y, - wren_vis.wrench.force.z]
+        contact_arrow = self.wrap_contact_marker(TACTID, TACTID, point_data, pscale = 0.5, f_color = 2)
+        self.pub_contact.publish(contact_arrow)
 
-    def deformation_visualization(self, TACTID, distactile, shift, pscale=1, dz_scale=1, frame='t'):
+    @staticmethod
+    def wrap_contact_marker(TACTID, id, point_data, pscale, f_color):
+        marker = Marker()
+        # marker.header.frame_id = 'map'
+        marker.header.frame_id = "p{}".format(TACTID)
+        marker.header.stamp = rospy.Time.now()
+        marker.ns = "pt_{}".format(TACTID)
+        marker.id = id + TACTID * 64
+        marker.type = Marker.ARROW
+        marker.action = Marker.ADD
+        marker.lifetime = rospy.Duration(.20)
+
+        # for remove warning in rviz
+        marker.pose.position.x = 0
+        marker.pose.position.y = 0
+        marker.pose.position.z = 0
+        marker.pose.orientation.x = 0.0
+        marker.pose.orientation.y = 0.0
+        marker.pose.orientation.z = 0.0
+        marker.pose.orientation.w = 1.0
+
+        start = Point()
+        start.x = point_data[0] * pscale
+        start.y = point_data[1] * pscale
+        start.z = point_data[2] * pscale
+        marker.points.append(start)
+        end = Point()
+        end.x = (point_data[0] + point_data[6]) * pscale
+        end.y = (point_data[1] + point_data[7]) * pscale
+        end.z = (point_data[2] + (point_data[8] if point_data[8] > 0 else 0.001)) * pscale
+        marker.points.append(end)
+        marker.scale.x = 0.02 * pscale # Shaft diameter
+        marker.scale.y = 0.05 * pscale # Head diameter
+        marker.scale.z = 0.05 * pscale # Head length
+        f_current = np.linalg.norm(point_data[6:])
+        marker.color.a = 0.3 + 0.7 * (f_current / f_color)
+        marker.color.r = 1.0 * (f_current / f_color)
+        marker.color.g = 0.5 - 0.5 * (f_current / f_color)
+        marker.color.b = 0.0
+        return marker
+
+    def deformation_visualization(self, TACTID, distactile, shift, pscale=1, dz_scale=1):
         # Points on surface
         f_max = np.linalg.norm(distactile[:, -3:], axis=-1).max()
         f_color = f_max + 0.005
@@ -143,9 +155,9 @@ class TactileDisplay:
         for i, pf in enumerate(distactile):
             marker = Marker()
             # marker.header.frame_id = 'map'
-            marker.header.frame_id = frame + "{}".format(TACTID+1)
+            marker.header.frame_id = "p{}".format(TACTID+1)
             marker.header.stamp = rospy.Time.now()
-            marker.ns = frame + "_{}_point".format(TACTID+1)
+            marker.ns = "p_{}_point".format(TACTID+1)
             marker.id = i + TACTID * 64
             marker.type = Marker.SPHERE
             marker.action = Marker.ADD
@@ -171,11 +183,11 @@ class TactileDisplay:
 
         # Interpolated surface 
         mesh_list = Marker()
-        mesh_list.header.frame_id = frame + "{}".format(TACTID+1)
+        mesh_list.header.frame_id = "p{}".format(TACTID+1)
         mesh_list.header.stamp = rospy.Time.now()
         mesh_list.type = Marker.TRIANGLE_LIST
         mesh_list.action = Marker.ADD
-        mesh_list.ns = frame + "_{}_surface".format(TACTID+1)
+        mesh_list.ns = "p_{}_surface".format(TACTID+1)
         mesh_list.pose.position.x = 0
         mesh_list.pose.position.y = 0
         mesh_list.pose.position.z = 0

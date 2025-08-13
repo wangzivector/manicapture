@@ -2,7 +2,9 @@
 import rospy
 import numpy as np
 import time
+import pickle
 from std_msgs.msg import UInt16MultiArray, Float32MultiArray, MultiArrayDimension
+from geometry_msgs.msg import WrenchStamped
 
 np.set_printoptions(precision=4, suppress=True)
 
@@ -16,14 +18,23 @@ class ManiTactile:
         self.pt_sense = [None, None, None, None]
 
         rospy.Subscriber('hardware_photos', UInt16MultiArray, self.photo_callback)
-        self.pub_distactile = rospy.Publisher('tt_distactile', Float32MultiArray, queue_size=3)
-        self.pub_photodigit = rospy.Publisher('tt_photodigit', Float32MultiArray, queue_size=3)
+        self.pub_distactile = rospy.Publisher('tt_distactile', Float32MultiArray, queue_size=4)
+        self.pub_photodigit = rospy.Publisher('tt_photodigit', Float32MultiArray, queue_size=4)
+        self.pub_contact = rospy.Publisher('tt_contact', WrenchStamped, queue_size=4)
 
         self.initial_batchsize = 10
         self.initial_data_var = 2e-4
         self.method_set = {"gaussian": self.gaussian_opti, 'intensity': self.intensity_opt}
         self.opt_mehod = rospy.get_param("/manitactile_node/photo_optimization", default="gaussian")
         self.optifun = self.method_set[self.opt_mehod]
+        model_path = rospy.get_param("/manitactile_node/force_model_path", default="")
+        rospy.logwarn(model_path)
+        with open(model_path, 'rb') as f: 
+            self.force_model = pickle.load(f)
+        scale_path = rospy.get_param("/manitactile_node/scale_model_path", default="")
+        rospy.logwarn(scale_path)
+        with open(scale_path, 'rb') as f: 
+            self.scale_model = pickle.load(f)
 
     def photo_callback(self, data):
         ## data extraction
@@ -35,7 +46,7 @@ class ManiTactile:
         self.PADPHOTOY = ptdata[(GRIDLENGTH+PADSIZE):(GRIDLENGTH+PADSIZE*2)] - 4 # (1, 7) to (-3, -3)
         # self.PADEDGE = np.max(np.max(np.abs([self.PADPHOTOX, self.PADPHOTOY])))
         ptencode = ptdata[(GRIDLENGTH+PADSIZE*2):(GRIDLENGTH+PADSIZE*2+GRIDLENGTH**2)] # GRIDLENGTH * GRIDLENGTH
-        ptread = ptdata[(GRIDLENGTH+PADSIZE*2+GRIDLENGTH**2):].astype(np.float) # (GRIDLENGTH, GRIDLENGTH, PADSIZE)
+        ptread = ptdata[(GRIDLENGTH+PADSIZE*2+GRIDLENGTH**2):].astype(np.float32) # (GRIDLENGTH, GRIDLENGTH, PADSIZE)
         self.update_photo(TACTID, ptencode, ptread, GRIDLENGTH, PADSIZE)
 
         ## preprocessing
@@ -48,23 +59,26 @@ class ManiTactile:
         POINTSIZE, PADS = GRIDLENGTH*GRIDLENGTH, [self.PADPHOTOX, self.PADPHOTOY]
         iterations, retSSE, optgs = self.optifun(photodigits_c, self.last_opgs[TACTID], POINTSIZE, PADS)
         self.last_opgs[TACTID] = optgs.copy()
-        time_opti = time.time() - start_opt_time
-
         ## decompose active force
-        distactile = self.compute_tactile(self.pt_opgs[TACTID], optgs, SPACING, self.GRIDPHOTO)
+        wrench_pred, distactile = self.compute_tactile(self.pt_opgs[TACTID], optgs, SPACING, self.GRIDPHOTO)
         
         ## (interpolated) deformation advertisement
         self.advertise_distactile(TACTID, distactile)
+
+        ## advertise contact forces
+        self.advertise_contact(TACTID, wrench_pred)
         
         ## advertise_photodigits
         self.advertise_photodigits(TACTID, photodigits_c)
 
         ## logging
-        timeforud = time.time() - self.last_time[TACTID]
+        # time_opti = time.time() - start_opt_time
+        # rospy.logwarn(time_opti*1000) # several ms
+        update_period = time.time() - self.last_time[TACTID]
         self.last_time[TACTID] = time.time()
         # rospy.loginfo("ID:{} iter:{} sse:{:.03f} var:{} time:{:.03f}ms".format( TACTID, iterations, retSSE.mean(), optgs.shape, (time_opti)*1000))
-        rospy.loginfo("ID:{}/{} {:.01f}Hz/{:.01f}ms DELAY:{}us; RES:{} GRID:{}; PAD:{}; pt:{}".format(
-            TACTID, TACTSIZE, 1/timeforud, timeforud*1000, SENSEDELAY, ADCRES, 
+        rospy.loginfo("ID:{}/{} {:.01f}Hz/{:.01f}ms DL:{}us RES:{} GD:{} PAD:{} PT:{}".format(
+            TACTID, TACTSIZE, 1/update_period, update_period*1000, SENSEDELAY, ADCRES, 
             self.GRIDPHOTO.shape, self.PADPHOTOX.shape, photodigits_c.shape))
 
     def advertise_distactile(self, TACTID, distactile):
@@ -75,6 +89,15 @@ class ManiTactile:
             dp_msg.layout.dim.append(MultiArrayDimension('dim{}'.format(dd), dim, 0))
         dp_msg.data = distactile.flatten().tolist()
         self.pub_distactile.publish(dp_msg)
+
+    def advertise_contact(self, TACTID, wrench):
+        wrench_pred = WrenchStamped()
+        wrench_pred.header.stamp = rospy.Time.now()
+        wrench_pred.header.frame_id = "p{}".format(TACTID+1)
+        wrench_pred.wrench.force.x = wrench[0]
+        wrench_pred.wrench.force.y = wrench[1]
+        wrench_pred.wrench.force.z = wrench[2]
+        self.pub_contact.publish(wrench_pred)
 
     def advertise_photodigits(self, TACTID, photodigits_c):
         if TACTID != rospy.get_param_cached('/machine_server/showrosimage', -1): return
@@ -87,8 +110,6 @@ class ManiTactile:
         dg_msg.layout.data_offset = TACTID
         dg_msg.data = photodigits_c.flatten().tolist() + self.pt_cst[TACTID].flatten().tolist()
         self.pub_photodigit.publish(dg_msg)
-
-
 
     def update_photo(self, TACTID, ptencode, ptread, GRIDLENGTH, PADSIZE):
         ptencode_matrix = np.array([[bool(int(digit)) for digit in format(num, '0{}b'.format(PADSIZE))] for num in ptencode])
@@ -250,14 +271,19 @@ class ManiTactile:
         # print(iterations, o_SSE, np.hstack([vA, vx0, vy0, vsigma_x, vsigma_y]))
         return iterations, o_SSE, np.hstack([vA, vx0, vy0, vsigma_x, vsigma_y])
 
-    @staticmethod
-    def compute_tactile(dftgs, optgs, SPACING, GRID, HEIGHT = 0.0):
+    def compute_tactile(self, dftgs, optgs, SPACING, GRID, HEIGHT = 0.0):
         cell_interval = SPACING * 0.0001
-        force_scale_xy = 10
-        force_scale_z = 0.2
         DX = - (optgs[:, 1] - dftgs[:, 1]) * cell_interval
         DY = - (optgs[:, 2] - dftgs[:, 2]) * cell_interval
         DZ = - (optgs[:, 0] - dftgs[:, 0]) * cell_interval
+
+        senses = (np.vstack((DX, DY, DZ)).T).flatten() # (k, 64, 3)
+        model_input = self.scale_model.transform(np.expand_dims(senses, axis=0))
+        f_pred = self.force_model.predict(model_input)
+
+        force_scale_xy = 10
+        force_scale_z = 0.2
+        # for visualization only
         FX = DX * force_scale_xy
         FY = DY * force_scale_xy
         FZ = (optgs[:, 0] - dftgs[:, 0]) * force_scale_z
@@ -270,10 +296,12 @@ class ManiTactile:
         distactile[:, 3] = DX
         distactile[:, 4] = DY
         distactile[:, 5] = DZ
+
         distactile[:, 6] = FX
         distactile[:, 7] = FY
         distactile[:, 8] = FZ
-        return distactile # matrix of {ox, oy, oz, dx, dy, dz, fx, fy, fz}
+
+        return np.squeeze(f_pred), distactile # matrix of {ox, oy, oz, dx, dy, dz, fx, fy, fz}
 
 
 if __name__ == '__main__':
