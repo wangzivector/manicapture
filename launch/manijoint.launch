@@ -1,6 +1,6 @@
 <launch>
     <arg name="machine" default="true"/>
-    <arg name="display" default="true"/>
+    <arg name="rviz" default="true"/>
 
     <group if="$(arg machine)">
     <include file="$(find manicapture)/launch/machine.launch" />
@@ -18,7 +18,7 @@
     </node>
 
 <!-- visualization -->
-    <group if="$(arg display)">
+    <group if="$(arg rviz)">
         <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_hand" args="0 0 0 0 0 0 map base_link 100" />
         <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/vis_system.rviz" />
     </group>

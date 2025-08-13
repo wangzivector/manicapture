@@ -1,5 +1,5 @@
 <launch>
-  <arg name="display" default="true"/>
+  <arg name="rviz" default="true"/>
 
   <!-- usb camera -->
   <rosparam ns="usb_cam" command="load" file="$(find manicapture)/cfg/camctl.yaml" />
@@ -21,7 +21,7 @@
     <remap from="camera_info" to="$(arg camera_name)/camera_info" />
   </node>
 
-  <group if="$(arg display)">
+  <group if="$(arg rviz)">
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find manicapture)/launch/vis_manipose.rviz" />
   </group>
 
