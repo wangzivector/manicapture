@@ -297,7 +297,7 @@ void HC_shift_sense_led(uint8_t row_sen, uint8_t col_sen, uint8_t row_led, uint8
     led_register[1] = led_register[2]; // default to last pins
     led_register[0] = indicator; // default to last pins
   }
-  else if (hardware_version == 2) {
+  else if (hardware_version >= 2) {
     /// sensing position shifting
     sense_register[7] = col_sen & 0x01;
     sense_register[6] = col_sen & 0x02;
@@ -549,33 +549,40 @@ void setup1()
   delay(100);
 
   ADS_Device.ADS_Init();
- }
+}
 
 void loop1()
 {
-  // float jointangles[12] = {0};
-  for(int channel = 0 ;channel < 12; channel++)
-  {
-    ADS_Device.ADS_setChannel(channel);
-    while(digitalRead(ADS_DRDY_PIN) == HIGH) { // monitor Data ready(DRDY pin)
-      if (photoupd == true){
+  if (hardware_version <= 2){
+    if (photoupd == true){
         pub_photoarray.publish(&buff_msg);
         nh.spinOnce();
         photoupd = false;
-      }
     }
-    uint32_t data = ADS_Device.ADS_Direct_Read_Data(); // < 3 ms for 400Hz
-    // value = (float) data * 360 / pow(2,23);
-    // jointangles[channel] = (uint16_t) (value * 100);
-    buff_joints[channel] = (uint16_t) (data >> 8);
+    delayMicroseconds(1);
   }
-  jointseq ++;
+  else if (hardware_version > 2){
+    // float jointangles[12] = {0};
+    for (int channel = 0 ;channel < 12; channel++)
+    {
+      ADS_Device.ADS_setChannel(channel);
+      while(digitalRead(ADS_DRDY_PIN) == HIGH) { // monitor Data ready(DRDY pin)
+        if (photoupd == true){
+          pub_photoarray.publish(&buff_msg);
+          nh.spinOnce();
+          photoupd = false;
+        }
+      }
+      uint32_t data = ADS_Device.ADS_Direct_Read_Data(); // < 3 ms for 400Hz
+      // value = (float) data * 360 / pow(2,23);
+      // jointangles[channel] = (uint16_t) (value * 100);
+      buff_joints[channel] = (uint16_t) (data >> 8);
+    }
+    jointseq ++;
 
-  buff_msg_joints.data = buff_joints;
-  buff_msg_joints.data_length = JOINT_MAXCON;
-  pub_jointarray.publish(&buff_msg_joints);
-  nh.spinOnce();
+    buff_msg_joints.data = buff_joints;
+    buff_msg_joints.data_length = JOINT_MAXCON;
+    pub_jointarray.publish(&buff_msg_joints);
+    nh.spinOnce();
+  }
 }
-
-
-

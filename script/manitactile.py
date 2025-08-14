@@ -25,13 +25,13 @@ class ManiTactile:
         self.initial_batchsize = 10
         self.initial_data_var = 2e-4
         self.method_set = {"gaussian": self.gaussian_opti, 'intensity': self.intensity_opt}
-        self.opt_mehod = rospy.get_param("/manitactile_node/photo_optimization", default="gaussian")
+        self.opt_mehod = rospy.get_param("~photo_optimization", default="gaussian")
         self.optifun = self.method_set[self.opt_mehod]
-        model_path = rospy.get_param("/manitactile_node/force_model_path", default="")
+        model_path = rospy.get_param("~force_model_path", default="")
         rospy.logwarn(model_path)
         with open(model_path, 'rb') as f: 
             self.force_model = pickle.load(f)
-        scale_path = rospy.get_param("/manitactile_node/scale_model_path", default="")
+        scale_path = rospy.get_param("~scale_model_path", default="")
         rospy.logwarn(scale_path)
         with open(scale_path, 'rb') as f: 
             self.scale_model = pickle.load(f)

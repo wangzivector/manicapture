@@ -18,7 +18,7 @@ class TactileDisplay:
         rospy.Subscriber('tt_distactile', Float32MultiArray, self.tactile_callback)
         rospy.Subscriber('tt_photodigit', Float32MultiArray, self.photoimage_visualization)
         rospy.Subscriber('tt_contact', WrenchStamped, self.contact_callback)
-        self.publish_period = rospy.Duration(1.0/rospy.get_param("/tactile_visualization_node/vis_pub_hz", default=30))
+        self.publish_period = rospy.Duration(1.0/rospy.get_param("~vis_pub_hz", default=30))
         rospy.Timer(self.publish_period, self.refresh_vis)
 
         self.pub_itp_surface = rospy.Publisher('tt_interpolate_points', Float32MultiArray, queue_size=3)
@@ -35,8 +35,8 @@ class TactileDisplay:
         TACTID = data.layout.data_offset
         distactile = np.array(data.data).reshape(-1, 9)
 
-        self.visulize_mode = rospy.get_param_cached("/tactile_visualization_node/tactile_display", default="static")
-        self.tactile_itpoints = rospy.get_param_cached("/tactile_visualization_node/tactile_itpoints", default="false")
+        self.visulize_mode = rospy.get_param_cached("~tactile_display", default="static")
+        self.tactile_itpoints = rospy.get_param_cached("~tactile_itpoints", default="false")
         ## visualization
         if self.visulize_mode == 'static':
             shift = [0, -0.03, 0]
